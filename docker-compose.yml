@@ -1,0 +1,246 @@
+version: '3.8'
+
+services:
+  # Message Broker
+  rabbitmq:
+    build: ./shared/rabbitmq
+    container_name: erp_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - erp_network
+
+  # Databases
+  postgres:
+    image: postgres:15-alpine
+    container_name: erp_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./databases/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - erp_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: erp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./databases/redis/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - erp_network
+
+  # API Gateway
+  gateway:
+    build: ./gateway
+    container_name: erp_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - rabbitmq
+      - postgres
+      - redis
+    networks:
+      - erp_network
+
+  # Core Services
+  auth-service:
+    build: ./services/auth-service
+    container_name: erp_auth
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - erp_network
+
+  # Business Services
+  invoices-service:
+    build: ./services/invoices-service
+    container_name: erp_invoices
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  crm-service:
+    build: ./services/crm-service
+    container_name: erp_crm
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  project-management-service:
+    build: ./services/project-management-service
+    container_name: erp_projects
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  accounting-service:
+    build: ./services/accounting-service
+    container_name: erp_accounting
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  # Supply Chain Services
+  supply-chain-service:
+    build: ./services/supply-chain-service
+    container_name: erp_supply_chain
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+      - PORT=3006
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  inventory-service:
+    build: ./services/inventory-service
+    container_name: erp_inventory
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - PORT=3007
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  warehouse-service:
+    build: ./services/warehouse-service
+    container_name: erp_warehouse
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=development
+      - PORT=3008
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  tms-service:
+    build: ./services/tms-service
+    container_name: erp_tms
+    ports:
+      - "3009:3009"
+    environment:
+      - NODE_ENV=development
+      - PORT=3009
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  lms-service:
+    build: ./services/lms-service
+    container_name: erp_lms
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - DB_HOST=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - erp_network
+
+  # Frontend
+  web:
+    build: ./web
+    container_name: erp_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    networks:
+      - erp_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  erp_network:
+    driver: bridge
