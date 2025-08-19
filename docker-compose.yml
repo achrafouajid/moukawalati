@@ -4,7 +4,7 @@ services:
   # Message Broker
   rabbitmq:
     build: ./shared/rabbitmq
-    container_name: erp_rabbitmq
+    container_name: moukawalati_rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -14,12 +14,12 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   # Databases
   postgres:
     image: postgres:15-alpine
-    container_name: erp_postgres
+    container_name: moukawalati_postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -30,11 +30,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./databases/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - erp_network
+      - moukawalati_network
 
   redis:
     image: redis:7-alpine
-    container_name: erp_redis
+    container_name: moukawalati_redis
     ports:
       - "6379:6379"
     volumes:
@@ -42,12 +42,12 @@ services:
       - ./databases/redis/redis.conf:/etc/redis/redis.conf
     command: redis-server /etc/redis/redis.conf
     networks:
-      - erp_network
+      - moukawalati_network
 
   # API Gateway
   gateway:
     build: ./gateway
-    container_name: erp_gateway
+    container_name: moukawalati_gateway
     ports:
       - "8080:8080"
     environment:
@@ -58,12 +58,12 @@ services:
       - postgres
       - redis
     networks:
-      - erp_network
+      - moukawalati_network
 
   # Core Services
   auth-service:
-    build: ./services/auth-service
-    container_name: erp_auth
+    build: ./services/auth
+    container_name: moukawalati_auth
     ports:
       - "3001:3001"
     environment:
@@ -77,12 +77,12 @@ services:
       - redis
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   # Business Services
   invoices-service:
     build: ./services/invoices-service
-    container_name: erp_invoices
+    container_name: moukawalati_invoices
     ports:
       - "3002:3002"
     environment:
@@ -94,11 +94,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   crm-service:
     build: ./services/crm-service
-    container_name: erp_crm
+    container_name: moukawalati_crm
     ports:
       - "3003:3003"
     environment:
@@ -110,11 +110,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   project-management-service:
     build: ./services/project-management-service
-    container_name: erp_projects
+    container_name: moukawalati_projects
     ports:
       - "3004:3004"
     environment:
@@ -126,11 +126,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   accounting-service:
     build: ./services/accounting-service
-    container_name: erp_accounting
+    container_name: moukawalati_accounting
     ports:
       - "3005:3005"
     environment:
@@ -142,12 +142,12 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   # Supply Chain Services
   supply-chain-service:
     build: ./services/supply-chain-service
-    container_name: erp_supply_chain
+    container_name: moukawalati_supply_chain
     ports:
       - "3006:3006"
     environment:
@@ -159,11 +159,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   inventory-service:
     build: ./services/inventory-service
-    container_name: erp_inventory
+    container_name: moukawalati_inventory
     ports:
       - "3007:3007"
     environment:
@@ -175,11 +175,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   warehouse-service:
     build: ./services/warehouse-service
-    container_name: erp_warehouse
+    container_name: moukawalati_warehouse
     ports:
       - "3008:3008"
     environment:
@@ -191,11 +191,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   tms-service:
     build: ./services/tms-service
-    container_name: erp_tms
+    container_name: moukawalati_tms
     ports:
       - "3009:3009"
     environment:
@@ -207,11 +207,11 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   lms-service:
     build: ./services/lms-service
-    container_name: erp_lms
+    container_name: moukawalati_lms
     ports:
       - "3010:3010"
     environment:
@@ -223,18 +223,18 @@ services:
       - postgres
       - rabbitmq
     networks:
-      - erp_network
+      - moukawalati_network
 
   # Frontend
   web:
     build: ./web
-    container_name: erp_web
+    container_name: moukawalati_web
     ports:
       - "3000:80"
     depends_on:
       - gateway
     networks:
-      - erp_network
+      - moukawalati_network
 
 volumes:
   postgres_data:
@@ -242,5 +242,5 @@ volumes:
   rabbitmq_data:
 
 networks:
-  erp_network:
+  moukawalati_network:
     driver: bridge
