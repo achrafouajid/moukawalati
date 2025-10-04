@@ -27,8 +27,8 @@ Moukawalati goes beyond a traditional ERP by embedding **artificial intelligence
 
 ## 🏗️ Architecture Overview  
 
-- **Frontend:** React (client interface)  
-- **Backend:** Node.js + Express (modular services)  
-- **Database:** PostgreSQL (per service persistence)  
+- **Frontend:** React 
+- **Backend:** Node.js + Express
+- **Database:** PostgreSQL  
 - **Messaging:** RabbitMQ (event-driven communication between services)  
 - **AI Layer:** Custom NLP & ML pipelines for chatbot-driven task automation  
