@@ -31,4 +31,7 @@ Moukawalati goes beyond a traditional ERP by embedding **artificial intelligence
 - **Backend:** Node.js + Express
 - **Database:** PostgreSQL  
 - **Messaging:** RabbitMQ (event-driven communication between services)  
-- **AI Layer:** Custom NLP & ML pipelines for chatbot-driven task automation  
+- **AI Layer:** Custom NLP & ML pipelines for chatbot-driven task automation
+
+## 🏗️ Clone
+
